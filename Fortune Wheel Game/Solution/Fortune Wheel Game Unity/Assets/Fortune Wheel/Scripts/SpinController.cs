@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+public enum SpinDirection { CW = -1, CCW = 1 }
+public enum PreselectedPrize { Random = 0, _0 = 1, _50 = 2, _100 = 3, _200 = 4, _300 = 5, _500 = 6, _750 = 7, _1000 = 8 }
+
 public class SpinController : MonoBehaviour
 {
-    public enum SpinDirection { CW = -1, CCW = 1}
-    public enum PreselectedPrize { Random = 0, _0 = 1, _50 = 2, _100 = 3, _200 = 4, _300 = 5, _500 = 6, _750 = 7, _1000 = 8}
 
     [Header("Do NOT modify the settings below")]
     public RectTransform m_RaycastRefPoint;
     public LayerMask m_RaycastLayer;
     public Animator m_Animator;
-    [Header("Feel free to modify the settings below")]
-    public SpinDirection m_Direction;
-    public PreselectedPrize m_SelectedPrize;
+
 
     // Events stuff
     public delegate void StartSpinningDelegate();
@@ -28,7 +27,7 @@ public class SpinController : MonoBehaviour
     // Singleton
     private void Awake()
     {
-        if (Instance !=null && Instance != this)
+        if (Instance != null && Instance != this)
         {
             Destroy(this); // Don't Really want to destroy the whole gameobject
             return;
@@ -41,15 +40,15 @@ public class SpinController : MonoBehaviour
         OnStartSpinning(); // Disable button, clear the winning sum from the previous spin
 
         int animNum = 0;
-        if (m_SelectedPrize == PreselectedPrize.Random)
-             animNum = Random.Range(1, 8) * (int) m_Direction;
+        if (AppData.Instance.m_SelectedPrize == PreselectedPrize.Random)
+            animNum = Random.Range(1, 8) * (int)AppData.Instance.m_Direction;
         else
-             animNum = (int) m_SelectedPrize * (int) m_Direction;
-        
+            animNum = (int)AppData.Instance.m_SelectedPrize * (int)AppData.Instance.m_Direction;
+
         m_Animator.SetInteger("animNum", animNum);
         StartCoroutine(ResetAnimNumberValue());
     }
-       
+
     private void EvaluateWinningPrize()
     {
         // I am using 3D Raycast with Box Collider
